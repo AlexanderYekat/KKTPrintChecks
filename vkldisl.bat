@@ -1,0 +1,1 @@
+net use z: \\lans.tyumen.nm-s.ru\Kassa /user:tyumen.nm-s.ru\kassa_user 5678824245667
