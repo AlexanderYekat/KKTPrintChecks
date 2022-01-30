@@ -1,0 +1,245 @@
+LPARAMETERS PrmFormObject, PrmCurAlias, PrmTipKassTicket
+
+LOCAL LcAlias, LcRetVal, LcCurAlias, lcCurIp, lcMySum1, lcMySum2, lcSender, Cash1, Cash2, lcCCHTmp
+
+Store 0 to Cash1, Cash2 && Признак существования кассы в документе
+LcAlias = ALIAS()
+LcRetVal = 0 && возвращаемое значение (1 - успешное завершение печати, 0 - неуспешное)
+LcCurAlias = PrmCurAlias && переданный алиас курсора для печати
+
+lcCurIp = "192.168.1.2"
+lcSender = 1
+
+IF TYPE("pbCCH1")<>"O"
+	PUBLIC pbCCH1
+	pbCCH1 = CREATEOBJECT("RemoteCashClient.CRemoteCashClient")
+	With pbCCH1
+		.OwnerWnd = PrmFormObject.hwnd
+		.SenderId = lcSender
+		.RemoteIP = lcCurIp
+		.RemotePort = 9514
+		.KeepAlive = 1
+	EndWith
+ENDIF
+
+IF TYPE("pbCCH2")<>"O"
+	PUBLIC pbCCH2
+	pbCCH2 = CREATEOBJECT("RemoteCashClient.CRemoteCashClient")
+	With pbCCH2 
+		.OwnerWnd = PrmFormObject.hwnd
+		.SenderId = lcSender
+		.RemoteIP = lcCurIp
+		.RemotePort = 9515
+		.KeepAlive = 1
+	EndWith
+ENDIF
+
+* .CmdId
+*        1 'Строка: '
+*        2 'Продажа: '
+*        3 'Возврат продажи: '
+*        4 'Закрыть чек: '
+*        5 'Отрезка '
+*        6 'Ящик '
+* (1 - обычный, 2 - возвратный, 3 - товарный чек (нефискальный формат))
+
+Do Case 
+	Case PrmTipKassTicket = 1
+		LnTipKassTicket = 2
+	Case PrmTipKassTicket = 2
+		LnTipKassTicket = 3
+	Case PrmTipKassTicket = 3
+		LnTipKassTicket = 1
+EndCase
+                                  
+SELECT (LcCurAlias)
+
+Scan
+  if empty(Otdel) then
+     Cash1 = 1
+  else
+     if SubStr(Otdel,1,1)='О'
+        Cash1 = 1
+     else
+        Cash2 = 1
+     endif
+  endif
+EndScan
+
+*Browse
+*Return
+
+*!* выполнение процедуры печати 
+*							начало документа
+
+Store 0 to pbCCH1.CmdId, pbCCH2.CmdId, pbCCH1.Font, pbCCH2.Font
+	
+* Поскольку ящик на кассе 1, то открываем документ для 1 в любом случае.
+
+pbCCH1.CmdId = 0
+pbCCH1.SendCmd
+if pbCCH1.SendRes = 0
+	lcRetVal = 0
+	Return
+EndIf
+
+If Cash1 = 1 then
+	PrintAdvHdr(pbCCH1)
+EndIf
+
+If Cash2 = 1 then
+	pbCCH2.CmdId = 0
+	pbCCH2.SendCmd
+	if pbCCH2.SendRes = 0
+		lcRetVal = 0
+		Return
+	EndIf
+	PrintAdvHdr(pbCCH2)
+EndIf
+
+Store 0 to lcMySum1, lcMySum2
+
+WITH PrmFormObject 
+	SELECT (LcCurAlias)
+	SCAN
+		If empty(Otdel) then
+			lcCCHTmp = pbCCH1
+		Else
+			if SubStr(Otdel,1,1)='О'
+				lcCCHTmp = pbCCH1
+			else
+				lcCCHTmp = pbCCH2
+			endif
+
+		EndIf
+		WITH lcCCHTmp
+			.Text = ALLTRIM(Nm)
+			.Depart = DepSelect(Otdel)
+			.Qty = ABS( VAL(QF))
+			.Price =  VAL(Cp)
+			.CmdId = LnTipKassTicket
+			.SendCmd
+			If LnTipKassTicket = 1 then
+				.Text = "             " + Allt(STR(ABS(VAL(Qf)),11)) + " X " + Allt(Cp)
+				.CmdId = LnTipKassTicket
+				.SendCmd
+				If empty(Otdel) then
+					lcMySum1 = lcMySum1 + ABS(VAL(QF) * VAL(Cp))
+				Else
+					lcMySum2 = lcMySum2 + ABS(VAL(QF) * VAL(Cp))
+				EndIf
+			EndIf
+		ENDWITH
+	ENDSCAN
+ENDWITH
+
+If Cash1 = 1 then
+	PrintEndTicket(pbCCH1, lcMySum1, "            ИП Токарев О.Н.             ") 
+EndIf
+If Cash2 = 1 then
+	PrintEndTicket(pbCCH2, lcMySum2, "            ИП Токарев А.Н.             ")
+EndIf
+
+With pbCCH1  && На кассе 1 документ открывается в любом случае. Закрываем.
+	.CmdId = 6
+	.SendCmd
+	.CmdId = 255
+	.SendCmd
+	LcRetVal =  .SendRes
+EndWith
+
+
+If Cash2 = 1 then
+	With pbCCH2
+		.CmdId = 255
+		.SendCmd
+		LcRetVal =  .SendRes
+	EndWith
+EndIf
+
+IF NOT EMPTY(LcAlias) AND USED(LcAlias)
+	SELECT (LcAlias)
+ENDIF
+
+*lcRetVal = 1 && Будем считать что все удачно :)
+
+RETURN LcRetVal
+
+****************************************************************************************************
+
+Procedure PrintAdvHdr            && дополнительный заголовок в документе
+	LParameters lcCCH
+	With lcCCH
+*		.Qty = 0
+*		.Price = 0
+*		.Text = "          Автомагазин ЛУЖНИКИ"
+*		.CmdId = 1					&& печать строки
+*		.SendCmd
+*		.Qty = 0
+*		.Price = 0
+*		.Text = "  ул.Энтузиастов, 2а  тел. 33-55-94 "
+*		.CmdId = 1					&& печать строки
+*		.SendCmd
+		.Text = "Оператор:" + PubUserNam &&PubUserFio
+		.CmdId = 1					&& печать строки
+		.SendCmd
+	
+		If LnTipKassTicket = 1 then
+			.Font = 1
+			.Text = "Товарный чек"
+			.CmdId = 1
+			.SendCmd
+			.Text = "от  " + dtoc(date())
+			.CmdId = 1
+			.SendCmd
+			.Font = 0
+		EndIf
+	EndWith
+EndProc
+
+Procedure PrintEndTicket
+	LParameters lcCCH, lcMySum, lcHeader
+
+	If LnTipKassTicket = 1 then
+		WITH lcCCH
+		 	.Font = 1
+			.Text = "ИТОГО   " + Alltr(str(lcMySum, 15, 2))
+			.CmdId = 1
+			.SendCmd
+			.Font = 0                      && После товарного чека восстановим заголовок
+			For i = 1 to 6
+				.Text = "   "
+				.CmdId = 1
+				.SendCmd
+			EndFor
+			.CmdId = 5
+			.SendCmd
+			.Text = lcHeader
+			.CmdId = 1
+			.SendCmd
+			.Text = "         Автомагазин ЛУЖНИКИ            "
+			.CmdId = 1
+			.SendCmd
+			.Text = "  ул. Энтузиастов, 2а, тел. 33-55-94    "
+			.CmdId = 1
+			.SendCmd
+		ENDWITH 
+	Else
+		WITH lcCCH
+	*							закрытие документа
+			.Text = "       СПАСИБО ЗА ПОКУПКУ !!!"
+			.CmdId = 4
+			.SendCmd
+		ENDWITH 
+	EndIf
+
+EndProc
+
+Function DepSelect
+	LParameters lcDepDescr
+        If Len(Allt(lcDepDescr)) > 1 then
+          Return Val(Allt(SubStr(lcDepDescr,2)))
+        Else
+          Return 1
+        EndIf
+EndFunc

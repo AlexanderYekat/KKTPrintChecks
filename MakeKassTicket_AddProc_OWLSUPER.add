@@ -1,0 +1,156 @@
+LPARAMETERS PrmFormObject, PrmCurAlias, PrmTipKassTicket
+
+LOCAL LcAlias, LcRetVal, LcCurAlias, lcCurIp, lcMySum, lcSender
+
+LcAlias = ALIAS()
+LcRetVal = 1 && возвращаемое значение (1 - успешное завершение печати, 0 - неуспешное)
+LcCurAlias = PrmCurAlias && переданный алиас курсора для печати
+
+* .CmdId
+*        1 'Строка: '
+*        2 'Продажа: '
+*        3 'Возврат продажи: '
+*        4 'Закрыть чек: '
+*        5 'Отрезка '
+*        6 'Ящик '
+* (1 - обычный, 2 - возвратный, 3 - товарный чек (нефискальный формат))
+
+Do Case 
+	Case PrmTipKassTicket = 1
+		LnTipKassTicket = 2
+	Case PrmTipKassTicket = 2
+		LnTipKassTicket = 3
+	Case PrmTipKassTicket = 3
+		LnTipKassTicket = 1
+EndCase
+                                  
+LcRetVal=0
+
+IF TYPE("PubOWLSUPERObject")<>"O"
+       PUBLIC PubOWLSUPERObject
+       PubOWLSUPERObject = CREATEOBJECT("RemoteCashClient.CRemoteCashClient")
+ENDIF
+
+do case 
+   case "2" $ SYS(0)
+       lcSender = 2
+   case "5" $ SYS(0)
+       lcSender = 5
+   case "1" $ SYS(0)
+       lcSender = 1
+endcase
+
+lcCurIp = "192.168.55.3"
+*lcCurIp = "127.0.0.1"
+
+*
+*LcSqlExpr="SELECT * FROM "+cstZZEnv.UserManFileName+" GROUP BY User_Id ORDER BY User_Id"
+*= MakeTmpTable("",REPLICATE("|",5)+LcSqlExpr,"","","User_Cursor_001")
+*SELECT User_Cursor_001
+*APPEND BLANK
+*REPLACE User_Id WITH "АДМИН"
+*LOCATE FOR ALLTRIM(User_Id)==ALLTRIM(PubUserNam)
+*lcSender=RECNO()
+*lcSender=IIF(BETWEEN(lcSender,1,9),lcSender,1)
+*= Close_Table(",User_Cursor_001,")
+
+SELECT (LcCurAlias)
+
+
+*						SenderId: SYSINT; CmdId: SYSINT; Depart: SYSINT;
+*						Text: WideString; Qty: SYSINT; Price: Currency;
+*						Tax1: SYSINT; TPayment: SYSINT; NFont: SYSINT
+                       	
+
+*!* выполнение процедуры печати 
+
+WITH PubOWLSUPERObject 
+*							общие параметры
+	.OwnerWnd = PrmFormObject.hwnd
+	.RemoteIP = lcCurIp
+	.RemotePort = 9514
+*							дополнительный заголовок в документе
+*	.AddLine(lcSender, 1, 1, "Оператор:" + PubUserNam, 0, 0, 0, 0, 0)
+
+	If LnTipKassTicket = 1 then
+	   .AddLine(lcSender, 1, 1, "Товарный чек", 0, 0, 0, 0, 1)
+	   .AddLine(lcSender, 1, 1, "от  " + dtoc(date()), 0, 0, 0, 0, 1)
+	EndIf
+
+ENDWITH 
+
+lcMySum = 0
+
+if allt(SKL01_T.pk) = "контрагент??"
+
+WITH PrmFormObject 
+	SELECT (LcCurAlias)
+	SCAN
+		WITH PubOWLSUPERObject 
+		        if len(allt(otdel)) > 0 then
+				myotd = 2
+			else
+				myotd = 1
+			endif
+			.AddLine(lcSender, LnTipKassTicket, myotd, ALLTRIM(Nm), ABS( VAL(QF)), VAL(Cp), 0, 0, 1)
+
+			If LnTipKassTicket = 1 then
+				.AddLine(lcSender, LnTipKassTicket, 1, "             " + Allt(STR(ABS(VAL(Qf)),11)) + " X " + Allt(Cp), 0, 0, 0, 0, 0)
+				lcMySum = lcMySum + ABS(VAL(QF) * VAL(Cp))
+			EndIf
+		ENDWITH
+	ENDSCAN
+ENDWITH 
+
+else
+
+WITH PrmFormObject 
+     SELECT (LcCurAlias)
+     lcSum3d = 0
+     SCAN
+        lcSum3d = lcSum3d + ABS(VAL(QF) * VAL(Cp))
+     ENDSCAN
+
+     WITH PubOWLSUPERObject
+          .AddLine(lcSender, LnTipKassTicket, 3, "Автозапчасти", 1, lcSum3d, 0, 0, 1)
+     ENDWITH
+ENDWITH 
+
+endif
+
+
+If LnTipKassTicket = 1 then
+	WITH PubOWLSUPERObject 
+		.AddLine(lcSender, 1, 1, "ИТОГО   " + Alltr(str(lcMySum, 15, 2)), 0, 0, 0, 0, 1)
+		For i = 1 to 6
+			.AddLine(lcSender, 1, 1, "   ", 0, 0, 0, 0, 0)
+		EndFor
+		.AddLine(lcSender, 5, 1, "   ", 0, 0, 0, 0, 0)
+		.AddLine(lcSender, 1, 1, "   Заголовок", 0, 0, 0, 0, 0)
+		.AddLine(lcSender, 1, 1, "   чека", 0, 0, 0, 0, 0)
+	ENDWITH 
+Else
+	WITH PubOWLSUPERObject 
+*							закрытие документа
+		.AddLine(lcSender, 4, 1, "       СПАСИБО ЗА ПОКУПКУ !!!", 0, 0, 0, 0, 0)
+*		.AddLine(lcSender, 5, 1, "   ", 0, 0, 0, 0, 0)
+	ENDWITH 
+EndIf
+
+WITH PubOWLSUPERObject 
+*							конец документа
+	.SendBuff
+	LcRetVal = .SendRes
+
+
+*	.AddLine(lcSender, 1, 1, "       адрес", 0, 0, 0, 0, 0)
+*	.AddLine(lcSender, 1, 1, "       магазина", 0, 0, 0, 0, 0)
+*	.AddLine(lcSender, 1, 1, "      СПАСИБО ЗА ПОКУПКУ !!!", 0, 0, 0, 0, 0)
+
+ENDWITH 
+
+IF NOT EMPTY(LcAlias) AND USED(LcAlias)
+	SELECT (LcAlias)
+ENDIF
+
+RETURN LcRetVal && 1 - успешное завершение печати, 0 - неуспешное
