@@ -1,0 +1,316 @@
+unit frMrcState;
+
+interface
+
+function sMercState(wState: Word): string;
+function sMercPrnState(wState: Word): string;
+
+implementation
+
+function sMercState(wState: Word): string;
+begin
+  sMercState := '';
+  if (wState and $1) > 0 then
+    sMercState := Result + 'смена открыта (иначе – закрыта)'#$D#$A;
+  if (wState and $2) > 0 then
+    sMercState := Result + 'буфер копии документа близок к концу (осталось менее 5%)'#$D#$A;
+  if (wState and $4) > 0 then
+    sMercState := Result + 'аппарат фискализирован'#$D#$A;
+  if (wState and $8) > 0 then
+    sMercState := Result + 'фискальная память близка к концу (осталось менее 30 записей)'#$D#$A;
+  if (wState and $10) > 0 then
+    sMercState := Result + 'фискальная память исчерпана'#$D#$A;
+  if (wState and $20) > 0 then
+    sMercState := Result + 'наличие в памяти копии последнего документа'#$D#$A;
+  if (wState and $40) > 0 then
+    sMercState := Result + 'используется узкая чековая лента'#$D#$A;
+  if (wState and $80) > 0 then
+    sMercState := Result + 'включено графическое клише'#$D#$A;
+end;
+
+function sMercPrnState(wState: Word): string;
+begin
+  sMercPrnState := '';
+  if (wState and $01) > 0 then
+    sMercPrnState := Result + 'контакт денежного ящика разомкнут'#$D#$A;
+  if (wState and $02) > 0 then
+    sMercPrnState := Result + 'принтер находится в состоянии offline'#$D#$A;
+  if (wState and $04) > 0 then
+    sMercPrnState := Result + 'открыта крышка принтера'#$D#$A;
+  if (wState and $08) > 0 then
+    sMercPrnState := Result + 'осуществляется подача бумаги кнопками принтера'#$D#$A;
+  if (wState and $10) > 0 then
+    sMercPrnState := Result + 'по срабатыванию датчика окончания бумаги останавливать печать'#$D#$A;
+  if (wState and $20) > 0 then
+    sMercPrnState := Result + 'наличие ошибки принтера'#$D#$A;
+  if (wState and $40) > 0 then
+    sMercPrnState := Result + 'наличие ошибки механики принтера'#$D#$A;
+  if (wState and $80) > 0 then
+    sMercPrnState := Result + 'наличие ошибки авторезчика'#$D#$A;
+
+  if (wState and $0100) > 0 then
+    sMercPrnState := Result + 'критическая ошибка принтера'#$D#$A;
+  if (wState and $0200) > 0 then
+    sMercPrnState := Result + 'перегрев печатающей головки'#$D#$A;
+  if (wState and $0400) > 0 then
+    sMercPrnState := Result + 'контрольная лента близка к завершению'#$D#$A;
+  if (wState and $0800) > 0 then
+    sMercPrnState := Result + 'чековая лента близка к завершению'#$D#$A;
+  if (wState and $1000) > 0 then
+    sMercPrnState := Result + 'закончилась контрольная лента'#$D#$A;
+  if (wState and $2000) > 0 then
+    sMercPrnState := Result + 'закончилась чековая лента'#$D#$A;
+  if (wState and $4000) > 0 then
+    sMercPrnState := Result + 'подкладной лист выбран '#$D#$A;
+  if (wState and $8000) > 0 then
+    sMercPrnState := Result + 'принтер ожидает подкладной лист'#$D#$A;
+
+  if (wState and $010000) > 0 then
+    sMercPrnState := Result + 'нет бумаги по данным датчика заправки подкладного листа'#$D#$A;
+  if (wState and $020000) > 0 then
+    sMercPrnState := Result + 'нет бумаги по данным датчика выброса подкладного листа'#$D#$A;
+  if (wState and $040000) > 0 then
+    sMercPrnState := Result + 'готовность дисплея покупателя'#$D#$A;
+  if (wState and $080000) > 0 then
+    sMercPrnState := Result + 'технологический режим'#$D#$A;
+  if (wState and $100000) > 0 then
+    sMercPrnState := Result + 'принтер выбран'#$D#$A;
+  if (wState and $200000) > 0 then
+    sMercPrnState := Result + 'отрезной нож выключен'#$D#$A;
+  if (wState and $400000) > 0 then
+    sMercPrnState := Result + 'конец бумаги или поднята печатающая головка'#$D#$A;
+  if (wState and $800000) > 0 then
+    sMercPrnState := Result + 'готовность принтера'#$D#$A;
+
+  if (wState and $01000000) > 0 then
+    sMercPrnState := Result + 'принтер занят, находится в состоянии offline или произошла ошибка принтера'#$D#$A;
+  if (wState and $02000000) > 0 then
+    sMercPrnState := Result + 'выполняется установка заводских настроек'#$D#$A;
+  if (wState and $04000000) > 0 then
+    sMercPrnState := Result + 'выполняется технологический сброс'#$D#$A;
+  if (wState and $08000000) > 0 then
+    sMercPrnState := Result + 'поднята печатающая головка принтера'#$D#$A;
+  if (wState and $10000000) > 0 then
+    sMercPrnState := Result + 'поднята печатающая головка принтера контрольной ленты'#$D#$A;
+//  if (wState and $20000000) > 0 then
+//    sMercPrnState := Result + ''#$D#$A;
+  if (wState and $40000000) > 0 then
+    sMercPrnState := Result + 'наличие и поддержка флагов расширенного статуса'#$D#$A;
+//  if (wState and $80000000) > 0 then
+//    sMercPrnState := Result + ''#$D#$A;
+end;
+
+
+function sMercGeneralErr(wState: Word): string;
+begin
+  case wState of
+    0: sMercGeneralErr := 'Нет ошибок';
+    1: sMercGeneralErr := 'соединение с ККМ не закрыто';
+    2: sMercGeneralErr := 'соединение с ККМ не открыто';
+    3: sMercGeneralErr := 'ККМ не отвечает';
+    4: sMercGeneralErr := 'ККМ не опознана';
+    5: sMercGeneralErr := 'невозможно произвести перекодировку строки символов';
+    6: sMercGeneralErr := 'операция не поддерживается используемой ККМ';
+    7: sMercGeneralErr := 'слишком большое число позиций чека или реквизитов документа';
+    8: sMercGeneralErr := 'нет открытого фискального документа';
+    9: sMercGeneralErr := 'фискальный документ уже открыт';
+    10: sMercGeneralErr := 'операция не допустима в контексте открытого типа документа, вида финансовой операции или типа оплаты';
+    11: sMercGeneralErr := 'операция не поддерживается используемой ККМ в контексте открытого типа документа, вида финансовой операции или типа оплаты';
+    12: sMercGeneralErr := 'дублирование реквизита в документе не допустимо';
+    13: sMercGeneralErr := 'в документе отсутствует обязательный реквизит';
+    14: sMercGeneralErr := 'неверное значение аргумента';
+    15: sMercGeneralErr := 'неверный ответ ККМ';
+    16: sMercGeneralErr := 'недостаточно памяти для выполнения операции';
+    17: sMercGeneralErr := 'ошибка операционной системы';
+    18: sMercGeneralErr := 'ошибка ККМ';
+    999: sMercGeneralErr := 'ошибка не является специфической ошибкой компонента';
+  end;
+end;
+
+Расширенные коды неверного формата ответа ККМ
+MERC_BRE_INVALID_NUMBER 1 число задано неверно
+MERC_BRE_INVALID_HEX 2 hex-число задано неверно
+MERC_BRE_INVALID_DATE 3 дата задана неверно
+MERC_BRE_INVALID_TIME 4 время задано неверно
+MERC_BRE_PACKET_FORMAT 5 неверный формат пакета
+MERC_BRE_UNEXPECTED_DATA 6 данные не соответствуют ожидаемым
+MERC_BRE_INVALID_BCC 7 неверная контрольная сумма пакета
+MERC_BRE_INVALID_DOC_TYPE 8 неверный тип документа
+MERC_BRE_PACKET_SIZE 9 неверный размер пакета
+
+Расширенные коды неверного аргумента
+MERC_IAE_INVALID_PORT_NUM 1 неверный номер порта
+MERC_IAE_INVALID_BAUD_RATE 2 неверное значение скорости обмена данными
+MERC_IAE_UNSUPPORTED_BAUD_RATE 3 значение скорости обмена данными не поддерживается подключенной ККМ
+MERC_IAE_INVALID_TIMEOUT 4 неверное значение таймаута
+MERC_IAE_INVALID_PROTOCOL 5 неверный тип протокола
+MERC_IAE_INVALID_OPER_NUM 6 неверный номер оператора
+MERC_IAE_INVALID_OPER_TYPE 8 неверный тип операции
+MERC_IAE_UNSUPPORTED_OPER_TYPE 9 указанный тип операции не поддерживается ККМ
+MERC_IAE_INVALID_COPIES_NUM 10 неверное значение числа копий документа
+MERC_IAE_INVALID_OFFSET 11 неверное значение смещения оттиска документа
+MERC_IAE_INVALID_PROP_OFFSET 12 неверное значение смещения реквизита документа
+MERC_IAE_INVALID_FISCAL_HOFFSET 13 при указанном смещении копия документа перекрывает фискальный признак
+MERC_IAE_INVALID_FISCAL_VOFFSET 14 фискальный признак должен иметь максимальное смещение по вертикали
+MERC_IAE_INVALID_FISCAL_COPY 15 неверный индекс фискального оттиска документа
+MERC_IAE_INVALID_OPER_INFO 16 неверно задан формат печати информации об операторе
+MERC_IAE_INVALID_PAY_TYPE 17 неверный вид оплаты
+MERC_IAE_UNSUPPORTED_PAY_TYPE 18 вид оплаты не поддерживается подключенной ККМ
+MERC_IAE_FORBIDDEN_PAY_TYPE 19 вид оплаты не допустим для открытой операции
+MERC_IAE_INVALID_PAY_SUM 20 неверное значение суммы оплаты
+MERC_IAE_INVALID_ITEM_SUM 21 неверное значение суммы позиции
+MERC_IAE_INVALID_DEPARTMENT 22 неверный номер отдела
+MERC_IAE_INVALID_ITEM_CODE 23 неверное значение кода позиции
+MERC_IAE_INVALID_ADJUSTMENT 24 неверное значение скидки / надбавки
+MERC_IAE_INVALID_QUANTITY 25 неверное значение количества
+MERC_IAE_INVALID_QUAN_PREC 26 неверное значение точности количества
+MERC_IAE_INVALID_TAX_INDEX 27 неверное значение индекса налоговой группы
+MERC_IAE_TOTAL_OVERFLOW 28 слишком большая сумма позиции
+MERC_IAE_INVALID_HEADER_LINE 29 неверный номер строки заголовка
+MERC_IAE_INVALID_ITEM_TYPE 30 неверный тип позиции
+MERC_IAE_UNSUPPORTED_ITEM_TYPE 31 выбранный тип позиции не поддерживается ККМ
+MERC_IAE_FORBIDDEN_ITEM_TYPE 32 тип позиции не допустим для открытой операции
+MERC_IAE_INVALID_DATE 33 дата задана неверно
+MERC_IAE_INVALID_CHANNEL 34 неверный номер канала управления внешним устройством
+MERC_IAE_INVALID_PULSE_TIME 35 неверное значение интервала импульса
+MERC_IAE_INVALID_PULSE_COUNT 36 неверное значение счетчика импульсов
+MERC_IAE_INVALID_LINE_COUNT 37 неверное число строк прогона чековой ленты
+MERC_IAE_UNSUPPORTED_FEED 38 направление прогона чековой ленты не поддерживается
+MERC_IAE_INVALID_TITLE 39 неверный номер программируемого заголовка
+MERC_IAE_INVALID_SERIAL_NUM 40 неверный серийный номер ККМ
+MERC_IAE_INVALID_TAX_RATE 41 неверное значение налоговой ставки
+MERC_IAE_INVALID_COUNTER 42 неверный номер счетчика ККМ
+MERC_IAE_UNSUPPORTED_COUNTER 43 номер счетчика не поддерживается ККМ
+MERC_IAE_INVALID_FISCAL_NUM 44 неверный номер фискальной записи
+MERC_IAE_INVALID_CONTRAST 45 неверная степень контрастности принтера
+MERC_IAE_INVALID_LEADING 46 неверное значение межстрочного интервала
+MERC_IAE_INVALID_LEFT_SPACE 47 неверное значение отступа слева
+MERC_IAE_INVALID_HEADER_WIDTH 48 неверная ширина графического клише
+MERC_IAE_INVALID_HEADER_HEIGHT 49 неверная высота графического клише
+MERC_IAE_INVALID_HEADER_DATA 50 неверные данные графического клише
+MERC_IAE_INVALID_ACCOUNT 51 неверно задан номер счета
+MERC_IAE_INVALID_EKLZ_VOFFSET 52 данные ЭКЛЗ должны иметь максимальное смещение по вертикали
+MERC_IAE_INVALID_GRAPHIC_NUM 53 неверный номер программируемого графического изображения
+MERC_IAE_INVALID_PARAM_CODE 54 неверный код программируемого параметра
+MERC_IAE_INVALID_ROUNDUP_MODE 55 неверное правило округления
+MERC_IAE_INVALID_ROUNDUP_UNIT 56 неверная величина округления
+MERC_IAE_INVALID_FISC_INTERVAL 57 неверная величина допустимого периода расхождения часов ККМ и последней записи в ФП
+MERC_IAE_INVALID_I2C_FREQUENCY 58 неверное значение частоты шины I2C
+MERC_IAE_INVALID_REP_TOTAL_MODE 59 неверное значение режима печати нарастающего итога в отчетах
+MERC_IAE_INVALID_CUTTER_COUNT 60 неверное значение количества отрезов при технологическом прогоне
+
+
+
+MERC_ERR_ECR_FISCAL 1 ошибка в фискальных данных, аппарат блокирован
+MERC_ERR_ECR_OPENED_SESSION 2 не закрыта смена
+MERC_ERR_ECR_OUT_OF_FISCAL 3 исчерпан ресурс сменных записей в фискальную память
+MERC_ERR_ECR_FIELD_TOO_LONG 4 превышена длина поля команды
+MERC_ERR_ECR_BAD_FIELD_FORMAT 5 неверный формат поля команды
+MERC_ERR_ECR_TIMER_READ_ERROR 6 ошибка чтения таймера
+MERC_ERR_ECR_INVALID_DATE 7 неверная дата
+MERC_ERR_ECR_INVALID_TIME 8 неверное время
+MERC_ERR_ECR_EARLY_DATE 9 попытка установить дату меньше последней даты, зарегистрированной в фискальной памяти; аппарат блокирован
+MERC_ERR_ECR_USER_BREAK 10 операция прервана пользователем
+MERC_ERR_ECR_FORBIDDEN 11 запрещенная команда ПУ
+MERC_ERR_ECR_CLOSED_SESSION 12 не открыта смена
+MERC_ERR_ECR_NO_OPERATOR 13 кассир не зарегистрирован
+MERC_ERR_ECR_INPUT_OVERFLOW 14 переполнение приёмного буфера
+MERC_ERR_ECR_FISCAL_WRITE_ERROR 15 ошибка записи в фискальную память
+MERC_ERR_ECR_TIMER_SET_ERROR 16 ошибка установки таймера
+MERC_ERR_ECR_BAD_INSPECTOR_PSWD 17 неверный пароль налогового инспектора; аппарат блокирован
+MERC_ERR_ECR_BAD_CONN_PSWD 18 неверный пароль на связь
+MERC_ERR_ECR_REG_OVERFLOW 19 исчерпан ресурс перерегистраций
+MERC_ERR_ECR_NO_FISCAL 20 аппарат не фискализирован
+MERC_ERR_ECR_FIELD_OVERFLOW 21 значение поля команды вне диапазона
+MERC_ERR_ECR_FISCAL_READ_ERROR 22 ошибка чтения фискальной памяти
+MERC_ERR_ECR_COUNTER_OVERFLOW 23 переполнение счётчика
+MERC_ERR_ECR_ZERO_FIELD 24 обязательное поле команды имеет нулевую длину
+MERC_ERR_ECR_BAD_CMD_FORMAT 25 неверный формат команды
+MERC_ERR_ECR_EARLY_DOCUMENT 26 дата или время последнего документа в смене меньше предыдущего
+MERC_ERR_ECR_JOURNAL_OVERFLOW 27 исчерпан ресурс буфера журнала
+MERC_ERR_ECR_BAD_PROPERTIES 28 ошибка в расположении реквизитов
+MERC_ERR_ECR_INVALID_CMD 29 нет такой команды
+MERC_ERR_ECR_INVALID_BCC 30 неверная контрольная сумма (BCC)
+MERC_ERR_ECR_EMPTY_FISCAL 31 нет фискальных записей
+MERC_ERR_ECR_DOC_CANCELED 33 оформление документа прервано по окончанию времени ожидания готовности принтера
+MERC_ERR_ECR_EMPTY_RESPONSE 36 буфер ответа пуст
+MERC_ERR_ECR_SERVICE_ABSENT 37 услуга не введена (версия 03)
+MERC_ERR_ECR_NO_SERVICE 39 услуга не введена для повтора документа или операции аннулирования
+MERC_ERR_ECR_BAD_JOURNAL 40 ошибка в данных буфера журнала
+MERC_ERR_ECR_PROP_DUPLICATION 41 дублирование обязательных реквизитов документа
+MERC_ERR_ECR_BAD_STATE 42 текущее состояние ККМ не позволяет выполнить операцию
+MERC_ERR_ECR_MEMORY_ERROR 43 ошибка в данных энергонезависимой памяти, аппарат блокирован
+MERC_ERR_ECR_FM_INITIALIZED 44 невозможно выполнить инициализацию ФП - ФП уже инициализирована
+MERC_ERR_ECR_DISPLAY_TIMEOUT 45 вывод прерван по окончанию времени ожидания готовности дисплея
+MERC_ERR_ECR_FLASH_ERROR 46 ошибка записи FLASH памяти
+MERC_ERR_ECR_NO_RECORDS 47 отсутствуют записи для формирования отчета
+MERC_ERR_EKLZ_NO_CONNECTION 48 ошибка связи с ЭКЛЗ
+MERC_ERR_EKLZ_BAD_COMMAND 49 некорректный формат или параметр команды ЭКЛЗ
+MERC_ERR_EKLZ_BAD_STATE 50 некорректное состояние ЭКЛЗ
+MERC_ERR_EKLZ_FAILURE 51 авария ЭКЛЗ
+MERC_ERR_EKLZ_ENCODER_FAILURE 52 авария криптографического процессора ЭКЛЗ
+MERC_ERR_EKLZ_TIME_OVERFLOW 53 исчерпан временной ресурс использования ЭКЛЗ
+MERC_ERR_EKLZ_FULL 54 ЭКЛЗ переполнена
+MERC_ERR_EKLZ_BAD_DATE_TIME 55 неверные дата и время в ЭКЛЗ
+MERC_ERR_EKLZ_NO_DATA 56 нет запрошенных данных в ЭКЛЗ
+MERC_ERR_EKLZ_COUNTER_OVERFLOW 57 переполнение счетчиков ЭКЛЗ
+MERC_ERR_EKLZ_ENCODER_ERROR 66 сбой криптопроцессора ЭКЛЗ
+MERC_ERR_EKLZ_PROTOCOL_ERROR 70 ошибка протокола обмена ЭКЛЗ
+MERC_ERR_EKLZ_BUFFER_OVERFLOW 71 переполнение приемного буфера ЭКЛЗ
+MERC_ERR_EKLZ_BAD_CHECKSUM 72 неверная контрольная сумма ЭКЛЗ
+MERC_ERR_EKLZ_ANOTHER_ECR 73 ЭКЛЗ активирована в составе другой ККМ, аппарат блокирован
+MERC_ERR_EKLZ_NOT_ACTIVATED 74 ЭКЛЗ не активирована
+MERC_ERR_EKLZ_FATAL_ERROR 75 неисправимая ошибка ЭКЛЗ
+MERC_ERR_EKLZ_NO_ACTIVATIONS 76 исчерпан ресурс активизаций ЭКЛЗ
+MERC_ERR_EKLZ_ACTIVATED 77 ЭКЛЗ уже активирована
+MERC_ERR_EKLZ_DEPART_OVERFLOW 78 превышено количество секций в документе (по ограничению в ЭКЛЗ)
+MERC_ERR_EKLZ_NO_ARCHIVE 79 архив ЭКЛЗ закрыт или переполнен
+MERC_ERR_EKLZ_FM_CONFLICT 80 данные ЭКЛЗ и фискальной памяти различаются
+MERC_ERR_ECR_CNT_QUANTITY_ADD 112 переполнение счётчика количества в чеке при сложении
+MERC_ERR_ECR_CNT_QUANTITY_SUB 113 переполнение счётчика количества в чеке при вычитании
+MERC_ERR_ECR_CNT_VOID 114 переполнение счётчика суммы аннулирований в чеке
+MERC_ERR_ECR_CNT_DAY_VOID 115 переполнение сменного счётчика суммы аннулирований
+MERC_ERR_ECR_CNT_DAY_SALE 116 переполнение сменного счётчика суммы продаж
+MERC_ERR_ECR_CNT_DAY_CASH_ADD 117 переполнение сменного счётчика суммы наличных
+MERC_ERR_ECR_CNT_DAY_PAY_CREDIT 118 переполнение сменного счётчика суммы оплаты в кредит
+MERC_ERR_ECR_CNT_DAY_PAY_CARD 119 переполнение сменного счётчика суммы оплаты картой
+MERC_ERR_ECR_CNT_DAY_CASH_SUB 120 переполнение сменного счётчика суммы наличных при вычитании
+MERC_ERR_ECR_CNT_DAY_RFD_CREDIT 121 переполнение сменного счётчика суммы возвратов при оплате в кредит
+MERC_ERR_ECR_CNT_TOTAL_ADD 122 переполнение счётчика итоговой суммы в чеке при добавлении
+MERC_ERR_ECR_CNT_TOTAL_SUB 123 переполнение счётчика итоговой суммы в чеке при вычитании
+MERC_ERR_ECR_CNT_TOTAL_MUL 124 переполнение счётчика стоимости в чеке, при умножении количества на стоимость
+MERC_ERR_ECR_CNT_TOTAL_DIS 125 переполнение счётчика итоговой суммы в чеке при вычислении скидки
+MERC_ERR_ECR_CNT_DPT_TOTAL_DIS 126 переполнение счётчика итоговой суммы по секции в чеке при вычислении скидки
+MERC_ERR_ECR_CNT_TARE_DIS 127 переполнение счётчика итоговой суммы учёта тары в чеке при вычислении скидки
+MERC_ERR_ECR_CNT_DISCOUNT 128 переполнение счётчика скидок в чеке
+MERC_ERR_ECR_CNT_TAX_DIS 129 переполнение счётчика итоговой суммы налоговой группы в чеке при вычислении скидки
+MERC_ERR_ECR_CNT_NOTAX_DIS 130 переполнение счётчика итоговой суммы безналоговой группы в чеке при вычислении скидки
+MERC_ERR_ECR_CNT_TOTAL_SUR 131 переполнение счётчика итоговой суммы в чеке при вычислении надбавки
+MERC_ERR_ECR_CNT_DPT_TOTAL_SUR 132 переполнение счётчика итоговой суммы по секции в чеке при вычислении надбавки
+MERC_ERR_ECR_CNT_TARE_SUR 133 переполнение счётчика итоговой суммы учёта тары в чеке при вычислении надбавки
+MERC_ERR_ECR_CNT_SURCHARGE 134 переполнение счётчика надбавок в чеке
+MERC_ERR_ECR_CNT_TAX_SUR 135 переполнение счётчика итоговой суммы налоговой группы в чеке при вычислении надбавки
+MERC_ERR_ECR_CNT_NOTAX_SUR 136 переполнение счётчика итоговой суммы безналоговой группы в чеке при вычислении надбавки
+MERC_ERR_ECR_CNT_DPT_TOTAL 137 переполнение счётчика итоговой суммы по секции в чеке
+MERC_ERR_ECR_CNT_TARE_TOTAL 138 переполнение счётчика итоговой суммы учёта тары в чеке
+MERC_ERR_ECR_CNT_TAX_TOTAL 139 переполнение счётчика итоговой суммы налоговой группы в чеке
+MERC_ERR_ECR_CNT_NOTAX_TOTAL 140 переполнение счётчика итоговой суммы безналоговой группы в чеке
+MERC_ERR_ECR_CNT_TOTAL_VOID_DIS 141 переполнение счётчика итоговой суммы в чеке при вычислении аннулирования скидки
+MERC_ERR_ECR_CNT_DPT_VOID_DIS 142 переполнение счётчика итоговой суммы по секции в чеке при вычислении аннулирования скидки
+MERC_ERR_ECR_CNT_TARE_VOID_DIS 143 переполнение счётчика итоговой суммы учёта тары в чеке при вычислении аннулирования скидки
+MERC_ERR_ECR_CNT_VOID_DISCOUNT 144 переполнение счётчика скидок в чеке при вычислении аннулирования скидки
+MERC_ERR_ECR_CNT_TAX_VOID_DIS 145 переполнение счётчика итоговой суммы налоговой группы в чеке при вычислении аннулирования скидки
+MERC_ERR_ECR_CNT_NOTAX_VOID_DIS 146 переполнение счётчика итоговой суммы безналоговой группы в чеке при вычислении аннулирования скидки
+MERC_ERR_ECR_CNT_TOTAL_VOID_SUR 147 переполнение счётчика итоговой суммы в чеке при вычислении аннулирования надбавки
+MERC_ERR_ECR_CNT_DPT_VOID_SUR 148 переполнение счётчика итоговой суммы по секции в чеке при вычислении аннулирования надбавки
+MERC_ERR_ECR_CNT_TARE_VOID_SUR 149 переполнение счётчика итоговой суммы учёта тары в чеке при вычислении аннулирования надбавки
+MERC_ERR_ECR_CNT_VOID_SURCHARGE 150 переполнение счётчика надбавок в чеке при вычислении аннулирования надбавки
+MERC_ERR_ECR_CNT_TAX_VOID_SUR 151 переполнение счётчика итоговой суммы налоговой группы в чеке при вычислении аннулирования надбавки
+MERC_ERR_ECR_CNT_NOTAX_VOID_SUR 152 переполнение счётчика итоговой суммы безналоговой группы в чеке при вычислении аннулирования надбавки
+MERC_ERR_ECR_INVALID_PAYMENT 153 сумма оплаты меньше суммы чека
+MERC_ERR_ECR_CNT_PAYMENT 154 переполнение счётчика итоговой суммы оплаты при комбинированной оплате
+MERC_ERR_ECR_CASHLESS_OVERFLOW 155 сумма безналичной оплаты больше суммы чека
+MERC_ERR_ECR_FISC_INTERVAL_OVER 156 расхождение текущей даты и даты последней записи в ФП больше запрограммированного значения
+MERC_ERR_ECR_EKL_OVERFLOW 160 ЭКЛ переполнена, необходимо выполнить ее распечатку
+
+end.
