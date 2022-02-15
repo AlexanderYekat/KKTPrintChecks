@@ -797,7 +797,8 @@ begin
  nomSymbGS:=Pos(Chr(29), strSSeriey);
  if nomSymbGS = 0 then begin
   tail:=Chr(29)+tail;
-
+  nomSymbDev92:=Pos('92', tail);
+  tail:=copy(tail, 1, nomSymbDev92-1)+Chr(29)+copy(tail, nomSymbDev92, 300);
  end;
 end; //ParsMarka    ;
 

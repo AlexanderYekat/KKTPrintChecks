@@ -765,7 +765,9 @@ begin
  end;
  gtin:=copy(str, 3, 14);
  dl:=Length(str);
- strSSeriey:=copy(str, dl - (dl - (3+14+2-1)) + 1, dl - (3+14+2-1));
+ //                17             32
+ //0104604278003594215axr4)K7FR8Eo-91EE07-92FjQwBfFGbJbJbuMnX/tFGKYMIelEXTaaN968D3SVNP0=
+ strSSeriey:=copy(str, 2+14+2 + 1, dl - (2+14+2));
  nomSymbDev91:=Pos('91', strSSeriey);
  nomSymbDev92:=Pos('92', strSSeriey);
  nomSymbDevSl:=0;
