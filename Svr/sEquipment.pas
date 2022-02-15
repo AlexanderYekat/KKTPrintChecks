@@ -1645,7 +1645,7 @@ begin
    if ovObject.getParamBool(ovObject.LIBFPTR_PARAM_MARKING_CODE_VALIDATION_READY) <> 0 then break;
    i:=0;
    WriteLogFile('Идет проверка марки "' + Trim(markUnion) + '". Попытка ' + IntToStr(CounterOfTryes) + '/' + IntToStr(CountOfTryes) + '...');
-   while i<10 do begin //пауза в 1 секунду
+   while i<600 do begin //пауза в 1 минуту
     Sleep(100);
     Application.ProcessMessages;
     Inc(i);
